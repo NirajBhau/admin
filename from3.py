@@ -40,12 +40,12 @@ def save_to_mssql(form_data):
 #         df_existing = pd.DataFrame(data, index=[0])
 #     df_existing.to_excel(file_path, index=False)
 
-# # Function to handle form submission
-# def handle_submission(form_data):
+# Function to handle form submission
+ def handle_submission(form_data):
 #     save_to_excel(form_data)
-#     save_to_mssql(form_data)
+     save_to_mssql(form_data)
 
-# Streamlit application
+Streamlit application
 def main():
     st.title("Admission Form")
 
