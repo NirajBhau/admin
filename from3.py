@@ -1,21 +1,49 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
+import pyodbc
 
-# Function to save form data to Excel
-def save_to_excel(data):
-    file_path = 'admission_data.xlsx'
+# Function to save form data to MSSQL database
+def save_to_mssql(form_data):
+    conn_str = (
+        r'DRIVER={ODBC Driver 17 for SQL Server};'
+        r'SERVER=DESKTOP-CEIB8QQ\NIRAJ;'  # Replace with your server name
+        r'DATABASE=Admins;'  # Replace with your database name
+        r'TRUSTED_CONNECTION=yes;'
+    )
+
     try:
-        df_existing = pd.read_excel(file_path)
-        df_existing = df_existing.append(data, ignore_index=True)
-    except FileNotFoundError:
-        df_existing = pd.DataFrame(data, index=[0])
-    df_existing.to_excel(file_path, index=False)
+        conn = pyodbc.connect(conn_str)
+        cursor = conn.cursor()
+        insert_query = """
+        INSERT INTO AdmissionForm (Name, Email, Phone, DateOfBirth, Gender, Address, Course)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """
+        cursor.execute(insert_query, form_data['Name'], form_data['Email'], form_data['Phone'],
+                       form_data['Date of Birth'], form_data['Gender'], form_data['Address'],
+                       form_data['Course'])
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        st.error(f"Error while inserting data: {e}")
+    else:
+        st.success("Admission form submitted successfully!")
 
-# Function to handle form submission
-def handle_submission(form_data):
-    save_to_excel(form_data)
-    st.success("Admission form submitted successfully!")
+# # Function to save form data to Excel
+# def save_to_excel(data):
+#     file_path = 'admission_data.xlsx'
+#     try:
+#         df_existing = pd.read_excel(file_path)
+#         df_existing = df_existing.append(data, ignore_index=True)
+#     except FileNotFoundError:
+#         df_existing = pd.DataFrame(data, index=[0])
+#     df_existing.to_excel(file_path, index=False)
+
+# # Function to handle form submission
+# def handle_submission(form_data):
+#     save_to_excel(form_data)
+#     save_to_mssql(form_data)
 
 # Streamlit application
 def main():
